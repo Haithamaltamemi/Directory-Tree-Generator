@@ -1,6 +1,6 @@
-# 📁 Offline Directory Tree Generator
-
 <div align="center">
+
+# 📁 Offline Directory Tree Generator
 
 ![HTML](https://img.shields.io/badge/HTML5-Offline-orange?style=for-the-badge&logo=html5)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-yellow?style=for-the-badge&logo=javascript)
