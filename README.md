@@ -85,13 +85,13 @@ project/
 
 ### Main Interface
 
-![Main UI](.\screenshots\main-ui.png)
+![Main UI](./screenshots/main-ui.png)
 
 ---
 
 ### Generated Tree Example
 
-![Tree Output](.\screenshots\tree-output.png)
+![Tree Output](./screenshots/tree-output.png)
 
 ---
 
