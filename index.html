@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directory Tree Generator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    }
+
+    .header {
+      padding: 24px;
+      border-bottom: 1px solid #1f2937;
+      background: linear-gradient(135deg, #111827, #0f172a);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+
+    .dropzone {
+      margin: 24px;
+      border: 2px dashed #3b82f6;
+      border-radius: 20px;
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px;
+      background: rgba(59,130,246,0.06);
+      transition: 0.25s ease;
+      cursor: pointer;
+    }
+
+    .dropzone.dragover {
+      background: rgba(59,130,246,0.15);
+      border-color: #60a5fa;
+      transform: scale(1.01);
+    }
+
+    .dropzone-content h2 {
+      margin-top: 18px;
+      font-size: 24px;
+    }
+
+    .dropzone-content p {
+      color: #94a3b8;
+      margin-top: 12px;
+      line-height: 1.8;
+    }
+
+    .icon {
+      font-size: 68px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 24px 24px;
+    }
+
+    button {
+      border: none;
+      background: #2563eb;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #3b82f6;
+    }
+
+    textarea {
+      width: calc(100% - 48px);
+      margin: 0 24px 24px;
+      min-height: 450px;
+      background: #020617;
+      color: #d1fae5;
+      border: 1px solid #1e293b;
+      border-radius: 18px;
+      padding: 20px;
+      resize: vertical;
+      font-size: 14px;
+      line-height: 1.7;
+      direction: ltr;
+      white-space: pre;
+    }
+
+    .footer {
+      padding: 18px 24px;
+      border-top: 1px solid #1f2937;
+      color: #64748b;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .dropzone {
+        min-height: 220px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      textarea {
+        min-height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <div class="header">
+      <h1>📁 Directory Tree Generator</h1>
+      <p>
+        أداة Offline لإنشاء مخطط شجري نصي لمحتويات المجلدات عبر السحب والإفلات.
+        تعمل بالكامل داخل المتصفح بدون رفع أي ملفات للخادم.
+      </p>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-content">
+        <div class="icon">📂</div>
+        <h2>قم بسحب المجلد هنا</h2>
+        <p>
+          أو اضغط لاختيار مجلد كامل من جهازك<br>
+          يدعم إنشاء Tree Structure تلقائيًا
+        </p>
+      </div>
+    </div>
+
+    <input type="file" id="folderInput" webkitdirectory multiple />
+
+    <div class="controls">
+      <button id="copyBtn">📋 نسخ المحتوى</button>
+      <button id="downloadBtn">⬇️ تحميل TXT</button>
+      <button id="clearBtn">🗑️ مسح</button>
+    </div>
+
+    <textarea id="output" placeholder="سيظهر المخطط الشجري هنا..."></textarea>
+
+    <div class="footer">
+      يعمل بالكامل Offline — لا يتم رفع أي ملفات إلى الإنترنت
+    </div>
+
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const folderInput = document.getElementById('folderInput');
+    const output = document.getElementById('output');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    dropzone.addEventListener('click', () => {
+      folderInput.click();
+    });
+
+    folderInput.addEventListener('change', (e) => {
+      processFiles(e.target.files);
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+
+      const items = e.dataTransfer.items;
+      const files = [];
+
+      for (let item of items) {
+        const entry = item.webkitGetAsEntry?.();
+
+        if (entry) {
+          traverseEntry(entry, '', files).then(() => {
+            generateTree(files);
+          });
+        }
+      }
+    });
+
+    async function traverseEntry(entry, path, files) {
+      if (entry.isFile) {
+        files.push(path + entry.name);
+      }
+
+      if (entry.isDirectory) {
+        const reader = entry.createReader();
+
+        await new Promise((resolve) => {
+          reader.readEntries(async (entries) => {
+            for (const ent of entries) {
+              await traverseEntry(ent, path + entry.name + '/', files);
+            }
+            resolve();
+          });
+        });
+      }
+    }
+
+    function processFiles(files) {
+      const paths = [];
+
+      for (const file of files) {
+        paths.push(file.webkitRelativePath);
+      }
+
+      generateTree(paths);
+    }
+
+    function generateTree(paths) {
+      paths.sort();
+
+      const tree = {};
+
+      for (const path of paths) {
+        const parts = path.split('/');
+        let current = tree;
+
+        for (const part of parts) {
+          if (!current[part]) {
+            current[part] = {};
+          }
+          current = current[part];
+        }
+      }
+
+      output.value = buildTree(tree);
+    }
+
+    function buildTree(node, prefix = '') {
+      let result = '';
+
+      const keys = Object.keys(node);
+
+      keys.forEach((key, index) => {
+        const isLast = index === keys.length - 1;
+        const connector = isLast ? '└── ' : '├── ';
+
+        result += prefix + connector + key + '\n';
+
+        const extension = isLast ? '    ' : '│   ';
+
+        result += buildTree(node[key], prefix + extension);
+      });
+
+      return result;
+    }
+
+    copyBtn.addEventListener('click', async () => {
+      if (!output.value.trim()) return;
+
+      await navigator.clipboard.writeText(output.value);
+
+      copyBtn.innerText = '✅ تم النسخ';
+
+      setTimeout(() => {
+        copyBtn.innerText = '📋 نسخ المحتوى';
+      }, 2000);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([output.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'directory-tree.txt';
+      a.click();
+
+      URL.revokeObjectURL(url);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      output.value = '';
+      folderInput.value = '';
+    });
+  </script>
+
+</body>
+</html>
