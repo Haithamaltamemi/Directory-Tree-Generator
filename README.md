@@ -9,8 +9,6 @@
 
 Simple Offline Web Tool for Generating Directory Tree Structures using Drag & Drop.
 
-أداة ويب تعمل بالكامل بدون إنترنت لإنشاء مخطط شجري نصي لمحتويات المجلدات عبر السحب والإفلات.
-
 </div>
 
 ---
