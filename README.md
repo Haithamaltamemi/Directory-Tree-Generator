@@ -1,4 +1,4 @@
-# 📁 Offline Drag & Drop Directory Tree Generator
+# 📁 Offline Directory Tree Generator
 
 <div align="center">
 
