@@ -13,8 +13,6 @@ Simple Offline Web Tool for Generating Directory Tree Structures using Drag & Dr
 
 ---
 
-# 🇺🇸 English Documentation
-
 ## ✨ Features
 
 - Fully Offline — No Internet Required
